@@ -52,6 +52,7 @@
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
     "jest": "^22.1.4",
-    "pre-commit": "^1.2.2"
+    "pre-commit": "^1.2.2",
+    "shelving-mock-indexeddb": "^1.0.7"
   }
 }

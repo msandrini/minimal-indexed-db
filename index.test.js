@@ -1,24 +1,36 @@
+import { IDBFactory, reset } from 'shelving-mock-indexeddb';
+
 import DB from './index';
 
-/* globals jest, describe, it, expect, window */
+/* globals jest, describe, it, expect, beforeEach, afterEach, window */
 
-window.indexedDB = {
-	open: jest.fn(() => ({
-		onsuccess: jest.fn(),
-		onupgradeneeded: jest.fn()
-	}))
+window.indexedDB = new IDBFactory();
+
+beforeEach(() => reset());
+afterEach(() => reset());
+beforeEach(() => jest.useFakeTimers());
+afterEach(() => jest.runAllTimers());
+
+const sampleDBInit = {
+	name: 'sample',
+	key: 'key',
+	data: [
+		{ id: 1, value: 'one' },
+		{ id: 2, value: 'two' },
+		{ id: 3, value: 'three' }
+	]
 };
 
 describe('MinimalIndexedDB', () => {
 
 	it('the class should be instantiated', () => {
-		const db = new DB('sample', 'key', [{ key: 1, value: 1 }]);
-		expect(typeof db === 'object').toBeTruthy();
+		const dbPromise = new DB('sample', 'key', []);
+		expect(typeof dbPromise === 'object').toBeTruthy();
 	});
 
-	it('the class should be instantiated (alternative init)', () => {
-		const db = new DB({ name: 'sample', key: 'key', data: [{ key: 1, value: 1 }] });
-		expect(typeof db === 'object').toBeTruthy();
-	});
+	// it('the class should be instantiated (alternative init)', () => {
+	// 	const dbPromise = new DB(sampleDBInit);
+	// 	expect(typeof dbPromise === 'object').toBeTruthy();
+	// });
 
 });
