@@ -1,0 +1,57 @@
+{
+  "name": "minimal-indexed-db",
+  "version": "0.0.1",
+  "description": "Minimal wrapper over native IndexedDB",
+  "main": "index.js",
+  "precommit": [
+    "lint",
+    "test"
+  ],
+  "scripts": {
+    "pretest": "npm run lint",
+    "test": "jest",
+    "lint": "eslint ./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/msandrini/timeDuration.git"
+  },
+  "keywords": [
+    "time",
+    "duration",
+    "hours",
+    "minutes"
+  ],
+  "author": {
+    "name": "Marcos Sandrini",
+    "email": "msandrinidesign@gmail.com"
+  },
+  "contributors": [
+    {
+      "name": "Everton Nikolas de Oliveira",
+      "email": "enikolas.oliveira@gmail.com"
+    },
+    {
+      "name": "Henrique Noronha Facioli",
+      "email": "henrique.facioli@students.ic.unicamp.br"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/msandrini/timeDuration/issues"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageDirectory": "coverage"
+  },
+  "homepage": "https://github.com/msandrini/timeDuration#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "eslint": "^4.16.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "jest": "^22.1.4",
+    "pre-commit": "^1.2.2"
+  }
+}
