@@ -1,14 +1,29 @@
+/* global window */
+
+const _getArguments = (args) => {
+	if (typeof args[0] === 'string') {
+		const [name, key, data] = args;
+		return { name, key, data };
+	}
+	return args[0];
+};
+
 export default class DB {
 
-	constructor(data = null) {
+	constructor(...args) {
 		this.db = null;
 		this.objectStore = null;
 		this.initResolve = () => {};
 		this.initReject = () => {};
 
-		this.openDBRequest = window.indexedDB.open('dailyEntries', 1);
+		const { name, key, data } = _getArguments(args);
 
-		if (data) {
+		this.primaryKey = key;
+		this.storeName = `store_${name}`;
+
+		this.openDBRequest = window.indexedDB.open(name, 1);
+
+		if (key) {
 			this.openDBRequest.onupgradeneeded = this._firstBuild.bind(this);
 			this.openDBRequest.onsuccess = this._afterFirstBuild(data).bind(this);
 		} else {
@@ -30,15 +45,15 @@ export default class DB {
 		this.db = this.openDBRequest.result;
 
 		// has to check this for uniqueness
-		this.objectStore = this.db.createObjectStore('entriesStore', { keyPath: 'date' });
+		this.objectStore = this.db.createObjectStore(this.storeName, { keyPath: this.primaryKey });
 		// this.objectStore.createIndex('date', 'date', { unique: true });
 	}
 
 	_afterFirstBuild(data = null) {
 		return () => {
 			this.db = this.openDBRequest.result;
-			const transaction = this.db.transaction('entriesStore', 'readwrite');
-			const store = transaction.objectStore('entriesStore');
+			const transaction = this.db.transaction(this.storeName, 'readwrite');
+			const store = transaction.objectStore(this.storeName);
 
 			transaction.oncomplete = () => {
 				this.initResolve(this);
@@ -61,9 +76,9 @@ export default class DB {
 	}
 
 	_query(method, param = null) {
-		const permission = method === 'put' ? 'readwrite' : 'readonly';
-		const transaction = this.db.transaction('entriesStore', permission);
-		const store = transaction.objectStore('entriesStore');
+		const permission = method.substr(0, 3) !== 'get' ? 'readwrite' : 'readonly';
+		const transaction = this.db.transaction(this.storeName, permission);
+		const store = transaction.objectStore(this.storeName);
 		const request = store[method](param);
 		return new Promise((resolve, reject) => {
 			request.onsuccess = (event) => {
@@ -75,8 +90,8 @@ export default class DB {
 		});
 	}
 
-	getEntry(date) {
-		return this._query('get', date);
+	getEntry(key) {
+		return this._query('get', key);
 	}
 
 	getAll() {
@@ -87,6 +102,8 @@ export default class DB {
 		return this._query('put', data);
 	}
 
-	delete(key)
+	delete(key) {
+		return this._query('delete', key);
+	}
 
 }

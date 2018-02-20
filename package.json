@@ -14,13 +14,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/msandrini/timeDuration.git"
+    "url": "git+https://github.com/msandrini/minimalIndexedDB.git"
   },
   "keywords": [
-    "time",
-    "duration",
-    "hours",
-    "minutes"
+    "indexeddb",
+    "offline",
+    "database",
+    "nosql"
   ],
   "author": {
     "name": "Marcos Sandrini",
@@ -38,13 +38,13 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/msandrini/timeDuration/issues"
+    "url": "https://github.com/msandrini/minimalIndexedDB/issues"
   },
   "jest": {
     "collectCoverage": true,
     "coverageDirectory": "coverage"
   },
-  "homepage": "https://github.com/msandrini/timeDuration#readme",
+  "homepage": "https://github.com/msandrini/minimalIndexedDB#readme",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.6.1",

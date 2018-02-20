@@ -1,74 +1,50 @@
-# timeDuration
+# minimalIndexedDB
 
-[![Build Status](https://travis-ci.org/msandrini/timeDuration.svg?branch=master)](https://travis-ci.org/msandrini/timeDuration)
-[![Greenkeeper badge](https://badges.greenkeeper.io/msandrini/timeDuration.svg)](https://greenkeeper.io/)
-[![codecov](https://codecov.io/gh/msandrini/timeDuration/branch/master/graph/badge.svg)](https://codecov.io/gh/msandrini/timeDuration)
-[![Known Vulnerabilities](https://snyk.io/test/github/msandrini/timeduration/badge.svg?targetFile=package.json)](https://snyk.io/test/github/msandrini/timeduration?targetFile=package.json)
-[![Maintainability](https://api.codeclimate.com/v1/badges/1acb70e8ab867c9e94e0/maintainability)](https://codeclimate.com/github/msandrini/timeDuration/maintainability)
-[![npm version](https://badge.fury.io/js/time-duration.svg)](https://badge.fury.io/js/time-duration)
-
-
-Library to handle simple hour/minute times, with *minutes* as basic units.
+Library to handle the simplest possible application of native IndexedDB (a basic CRUD), with none of indexedDB complexities, in a super lightweight fashion.
 
 ## installation
 
-`npm i time-duration` with `--save-dev` if desired
+`npm i minimal-indexed-db` with `--save-dev` if desired
 
 
 ## usage
 
-This lib is based on an instantiable class, to deal with time in the scope of minutes and hours. It supports time to be supplied to it in 4 basic ways:
+This lib is based on an instantiable class. This class is meant to be instantiated in the first use together with the initial data to populate the database and the key, as in the example below:
 
 ```javascript
-const td = new TimeDuration('2:30'); // string with hours and minutes
-const td = new TimeDuration({ hours: 2, minutes: 30 }); // object
-const td = new TimeDuration(2, 30); // two parameters: hours, minutes
-const td = new TimeDuration(210); // number of minutes
+const db = new DB({ 
+    dbName: 'sample', 
+    key: 'id', 
+    data: [
+        { id: 1, name: 'John' }, 
+        { id: 2, name: 'Terry' }
+    ]});
 ```
 
-Also, time can be supplied as a difference between two native `Date` objects (in this case it will calculate the minutes not with `getMinutes()` but based on both milliseconds):
+This code above returns a promise that resolves (with the instantiated class provided) when the action is done and rejects in case of any error.
+
+You can also use parameters:
 
 ```javascript
-const date1 = new Date(2018, 0, 1, 12, 45, 54);
-const date2 = new Date(2018, 0, 1, 14, 20, 15);
-const td = new TimeDuration(date1, date2);
+const db = new DB('sample', 'id', [ /* data, can be omitted to be empty */ ]);
 ```
 
-With this class instantiated, one can process time calculations with minutes and hours and output it as a number of formats. The formats are as follows:
+After that, you can use the instantiated class or you can instantiate again the class *without the key and data* to query and modify the database. Look at the examples below:
 
 ```javascript
-const td = new TimeDuration(2, 30);
-console.log(td + 0); // outputs 210 (integer)
-console.log(td.valueOf()); // outputs 210, same as above
-console.log(td.toMinutes()); // outputs 210, just as above
-console.log(td.toString()); // outputs "2:30"
-console.log(td.toHours(1)); // outputs 2.5 (float -the parameter tells the round precision)
-console.log(td.toObject()); // outputs an object { hours: 2, minutes: 30 }
+const db = new DB('sample');
+db.getEntry(1); // returns { id: 1, name: 'John' } if initiated as stated in the first example.
 ```
 
-The processing functions built out of the box:
-_(On *add* and *subtract* the parameter will be converted to a TimeDuration, whereas on *multiplyBy* and *divideBy* the parameter will be the multiplication/division factor)_
+So, one can get a single entry queried by the key (as in the example above), or do as following:
 
 ```javascript
-const td = new TimeDuration(2, 30);
-
-console.log(td.add(10)); // outputs "2:40"
-console.log(td.add('1:00')); // outputs "3:30"
-console.log(td.subtract(1, 0)); // outputs "1:30"
-console.log(td.subtract({ hours: 0, minutes: 20 })); // outputs "2:10"
-console.log(td.multiplyBy(3)); // outputs "7:30"
-console.log(td.divideBy(2)); // outputs "1:15"
+db.getAll();
+db.put({ id: 3, name: 'Brian' }); // inserts an entry (or updates it, if the key exists)
+db.delete(3); // delete the record for the key provided
 ```
 
-Alternatively, one can do mathematical operations with TimeDurations:
-
-```javascript
-const td1 = new TimeDuration(1, 20);
-const td2 = new TimeDuration(1, 00);
-console.log(td1 + td2); // outputs 140 (integer)
-console.log(new TimeDuration(td1 - td2)); // outputs "0:20"
-```
-
+All those methods above return a promise that resolves when the process is done (with the result of the query, when it is a query) and rejects in case of any error.
 ## testing and linting
 
 ```
