@@ -69,6 +69,7 @@ export default class DB {
 
 	_rebuild() {
 		this.db = this.openDBRequest.result;
+		this.initResolve(this);
 	}
 
 	_loadError(event) {
@@ -77,17 +78,20 @@ export default class DB {
 
 	_query(method, param = null) {
 		const permission = method.substr(0, 3) !== 'get' ? 'readwrite' : 'readonly';
-		const transaction = this.db.transaction(this.storeName, permission);
-		const store = transaction.objectStore(this.storeName);
-		const request = store[method](param);
-		return new Promise((resolve, reject) => {
-			request.onsuccess = (event) => {
-				resolve(event.target.result);
-			};
-			request.onerror = (event) => {
-				reject(event);
-			};
-		});
+		if (this.db.objectStoreNames.contains(this.storeName)) {
+			const transaction = this.db.transaction(this.storeName, permission);
+			const store = transaction.objectStore(this.storeName);
+			const request = store[method](param);
+			return new Promise((resolve, reject) => {
+				request.onsuccess = (event) => {
+					resolve(event.target.result);
+				};
+				request.onerror = (event) => {
+					reject(event);
+				};
+			});
+		}
+		return Promise.reject(new Error('Store not found'));
 	}
 
 	getEntry(key) {
