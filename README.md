@@ -9,18 +9,18 @@ Library to handle the simplest possible application of native IndexedDB (a basic
 
 ## usage
 
-The DB is meant to be created and then it will be ready to be used. As the IndexedDB lib is asynchronous, so this is as well. 
+The DB is meant to be instantiated and then it will be ready to be used. Note that it will create a DB if it doesn't exist. As the IndexedDB lib is asynchronous, so this is as well.
 
-To create the DB, do it as in the example below. The first parameter is the DB name, the second is the primary key (which is optional and defaults to _"id"_)
+To use the DB initially, do it as in the example below. The first parameter is the DB name, the second is the primary key (which is optional and defaults to _"id"_).
 
 ```javascript
-const dbPromise = DB.create('sample', 'id');
+const dbPromise = DB.use('sample', 'id');
 ```
 
-This code above returns a promise that resolves with the DB handling methods (see below) when the DB is created and rejects in case of any error.
+This code above returns a promise that resolves with the DB handling methods (see below) when the DB is initiated/created and rejects in case of any error.
 
 ```javascript
-DB.create('sample', 'id').then((db) => {
+DB.use('sample', 'id').then((db) => {
     db.put({ id: 1, name: 'John' });
 });
 ```

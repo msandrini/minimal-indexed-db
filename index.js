@@ -2,32 +2,47 @@
 
 const DB = {
 
-	create: function createDB(dbName, key = 'id') {
+	use: function useDB(dbName, key = 'id') {
 		return new Promise((resolve, reject) => {
-			this.openDBRequest = window.indexedDB.open(dbName, 1);
+			const openDBRequest = window.indexedDB.open(dbName, 1);
 			this.storeName = `${dbName}_store`;
 
 			const _firstBuild = () => {
-				this.db = this.openDBRequest.result;
+				this.db = openDBRequest.result;
 				this.objectStore = this.db.createObjectStore(this.storeName, { keyPath: key });
 			};
 
 			const _successBuild = () => {
-				resolve(this._getMethods);
+				resolve(this._getMethods());
 			};
 
 			const _errorBuild = (e) => {
 				reject(new Error(e));
 			};
 
-			this.openDBRequest.onupgradeneeded = _firstBuild.bind(this);
-			this.openDBRequest.onsuccess = _successBuild.bind(this);
-			this.openDBRequest.onerror = _errorBuild.bind(this);
+			openDBRequest.onupgradeneeded = _firstBuild.bind(this);
+			openDBRequest.onsuccess = _successBuild.bind(this);
+			openDBRequest.onerror = _errorBuild.bind(this);
 		});
 	},
 
-	check: function checkDB() {
-		return Boolean(this.db && this.db.objectStoreNames.include(this.storeName));
+	check: function checkDB(dbName) {
+		return new Promise((resolve, reject) => {
+			const openDBRequest = window.indexedDB.open(dbName, 1);
+			const _afterOpenCheck = () => {
+				this.db = openDBRequest.result;
+				const dbExists = Boolean(this.db && this.db.objectStoreNames.length);
+				if (dbExists) {
+					window.indexedDB.deleteDatabase(dbName);
+				}
+				resolve(dbExists);
+			};
+			const _errorCheck = (e) => {
+				reject(new Error(e));
+			};
+			openDBRequest.onsuccess = _afterOpenCheck.bind(this);
+			openDBRequest.onerror = _errorCheck.bind(this);
+		});
 	},
 
 	_query: function _queryDB(method, readOnly = true, param = null) {
@@ -67,26 +82,6 @@ const DB = {
 			put: entryData => this._query('put', false, entryData),
 			deleteEntry: key => this._query('delete', false, key)
 		};
-	},
-
-	use: function useDB(dbName) {
-		return new Promise((resolve, reject) => {
-			this.openDBRequest = window.indexedDB.open(dbName, 1);
-
-			const _successBuild = () => {
-				this.db = this.openDBRequest.result;
-				this.storeName = `${dbName}_store`;
-				resolve(this._getMethods);
-			};
-
-			const _errorBuild = (e) => {
-				reject(new Error(e));
-			};
-
-			this.openDBRequest.onsuccess = _successBuild.bind(this);
-			this.openDBRequest.onerror = _errorBuild.bind(this);
-
-		});
 	},
 
 	delete: function deleteDB() {
