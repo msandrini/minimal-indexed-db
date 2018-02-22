@@ -26,7 +26,7 @@ const DB = {
 		});
 	},
 
-	_query: (method, readOnly = true, param = null) => {
+	_query: function _queryDB(method, readOnly = true, param = null) {
 		const permission = readOnly ? 'readonly' : 'readwrite';
 		if (this.db.objectStoreNames.contains(this.storeName)) {
 			const transaction = this.db.transaction(this.storeName, permission);
@@ -52,11 +52,13 @@ const DB = {
 		return Promise.reject(new Error('Store not found'));
 	},
 
-	_getMethods: {
-		getEntry: key => this._query('get', true, key),
-		getAll: () => this._query('getAll', true),
-		put: entryData => this._query('put', false, entryData),
-		delete: key => this._query('delete', false, key)
+	_getMethods: function _getMethodsForDB() {
+		return {
+			getEntry: key => this._query('get', true, key),
+			getAll: () => this._query('getAll', true),
+			put: entryData => this._query('put', false, entryData),
+			delete: key => this._query('delete', false, key)
+		};
 	},
 
 	use: function useDB(dbName) {
