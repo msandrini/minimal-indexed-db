@@ -9,42 +9,51 @@ Library to handle the simplest possible application of native IndexedDB (a basic
 
 ## usage
 
-This lib is based on an instantiable class. This class is meant to be instantiated in the first use together with the initial data to populate the database and the key, as in the example below:
+The DB is meant to be created and then it will be ready to be used. As the IndexedDB lib is asynchronous, so this is as well. 
+
+To create the DB, do it as in the example below. The first parameter is the DB name, the second is the primary key (which is optional and defaults to _"id"_)
 
 ```javascript
-const db = DB.init({ 
-    dbName: 'sample', 
-    key: 'id', // key is optional, defaults to "id"
-    initialData: [ // initial data is also optional, defaults to an empty array
-        { id: 1, name: 'John' }, 
-        { id: 2, name: 'Terry' }
-    ]});
+const dbPromise = DB.create('sample', 'id');
 ```
 
-This code above returns a promise that resolves (with the instantiated class provided) when the action is done and rejects in case of any error.
-
-You can also use parameters:
+This code above returns a promise that resolves with the DB handling methods (see below) when the DB is created and rejects in case of any error.
 
 ```javascript
-const db = DB.init('sample', 'id', [ /* initial data, can be omitted to be empty */ ]);
+DB.create('sample', 'id').then((db) => {
+    db.put({ id: 1, name: 'John' });
+});
 ```
 
-After that, you can use the instantiated class or you can instantiate again the class *without the key and data* to query and modify the database. Look at the examples below:
+After that, you can access the database anytime through `DB.use` to have access to the handling methods. Look at the examples below:
 
 ```javascript
-const db = new DB('sample');
-db.getEntry(1); // returns { id: 1, name: 'John' } if initiated as stated in the first example.
+DB.use('sample').then((db) => {
+    db.put({ id: 1, name: 'John' });
+    db.getEntry(1); // returns { id: 1, name: 'John' }
+});
 ```
 
-So, one can get a single entry queried by the key (as in the example above), or do as following:
+### Handling methods
+
+- `<instance>.getEntry(key)`: gets the entry by the primary key provided (or undefined if nothing was found)
+- `<instance>.getAll()`: gets an array with all entries
+- `<instance>.put()`: inserts an entry or updates it, if the key provided in the entry object already exists. An array can be provided to insert many entries at once.
+- `<instance>.delete(key)`: deletes the entry with the primary key provided
+
+All those methods above return a promise that resolves when the process is done (with the result of the query, when it is a query) and rejects in case of any error. Follow the examples above:
 
 ```javascript
-db.getAll();
-db.put({ id: 3, name: 'Brian' }); // inserts an entry (or updates it, if the key exists)
-db.delete(3); // delete the record for the key provided
+await db = DB.use('sample');
+await db.put([
+    { id: 1, name: 'John' },
+    { id: 3, name: 'Brian' }
+]);
+await db.getEntry(3); // returns { id: 3, name: 'Brian' }
+await db.delete(3); // delete the record for the key provided
+await db.getEntry(3); // returns undefined
 ```
 
-All those methods above return a promise that resolves when the process is done (with the result of the query, when it is a query) and rejects in case of any error.
 ## testing and linting
 
 ```
