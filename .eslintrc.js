@@ -22,6 +22,8 @@ module.exports = {
         "no-confusing-arrow": "off",
         /* comma-dangle enforces things like [1, 2, 3,] 
             which are pretty awkward, so we invert the default */
-        "comma-dangle": ["error", "never"]
+        "comma-dangle": ["error", "never"],
+        /* specific to the project - it complains about this for no good reason */
+        "no-shadow": "off"
     }
 }

@@ -1,36 +1,74 @@
-import { IDBFactory, reset } from 'shelving-mock-indexeddb';
-
 import DB from './index';
 
-/* globals jest, describe, it, expect, beforeEach, afterEach, window */
-
-window.indexedDB = new IDBFactory();
-
-beforeEach(() => reset());
-afterEach(() => reset());
-beforeEach(() => jest.useFakeTimers());
-afterEach(() => jest.runAllTimers());
-
-const sampleDBInit = {
-	name: 'sample',
-	key: 'key',
-	data: [
-		{ id: 1, value: 'one' },
-		{ id: 2, value: 'two' },
-		{ id: 3, value: 'three' }
-	]
-};
+/* globals jest, describe, it, expect, window */
 
 describe('MinimalIndexedDB', () => {
 
-	it('the class should be instantiated', () => {
-		const dbPromise = new DB('sample', 'key', []);
-		expect(typeof dbPromise === 'object').toBeTruthy();
+	it('the service should have two methods', () => {
+		expect(DB).toEqual(expect.any(Object));
+		expect(DB.create).toBeDefined();
+		expect(DB.use).toBeDefined();
 	});
 
-	// it('the class should be instantiated (alternative init)', () => {
-	// 	const dbPromise = new DB(sampleDBInit);
-	// 	expect(typeof dbPromise === 'object').toBeTruthy();
-	// });
+	describe('create DB flow', () => {
+
+		const open = () => ({
+			onupgradeneeded: jest.fn(),
+			onsuccess: jest.fn(),
+			onerror: jest.fn(),
+			result: {
+				createObjectStore: jest.fn((storeName, providedOptions) => ({
+					storeName,
+					providedOptions
+				}))
+			}
+		});
+
+		window.indexedDB = { open };
+
+		it('should return a promise', () => {
+			expect(DB.create('sample')).toBeInstanceOf(Promise);
+		});
+		it('should make a DB and a store', () => {
+			DB.create('sample');
+			DB.openDBRequest.onupgradeneeded();
+			expect(DB.db).toMatchSnapshot();
+			expect(DB.objectStore).toMatchSnapshot();
+		});
+		it('should resolve when successful', (done) => {
+			const dbInstance = DB.create('sample');
+			dbInstance.then(() => {
+				expect(true).toBe(true);
+				done();
+			});
+			DB.openDBRequest.onsuccess();
+		});
+		it('should reject when having an error', (done) => {
+			const dbInstance = DB.create('sample');
+			dbInstance.catch((e) => {
+				expect(e.message).toBe('error');
+				done();
+			});
+			DB.openDBRequest.onerror('error');
+		});
+
+	});
+
+	describe('use DB flow', () => {
+
+		it('should return promise');
+		it('should reject on error');
+		it('should resolve with 4 methods');
+
+		describe('should the DB handling methods do what they mean', () => {
+
+			it('getEntry');
+			it('getAll');
+			it('put');
+			it('delete');
+
+		});
+
+	});
 
 });

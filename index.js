@@ -1,113 +1,75 @@
 /* global window */
 
-const _getArguments = (args) => {
-	if (typeof args[0] === 'string') {
-		const [name, key, data] = args;
-		return { name, key, data };
-	}
-	return args[0];
-};
+const DB = {
 
-export default class DB {
-
-	constructor(...args) {
-		this.db = null;
-		this.objectStore = null;
-		this.initResolve = () => {};
-		this.initReject = () => {};
-
-		const { name, key, data } = _getArguments(args);
-
-		this.primaryKey = key;
-		this.storeName = `store_${name}`;
-
-		this.openDBRequest = window.indexedDB.open(name, 1);
-
-		if (key) {
-			this.openDBRequest.onupgradeneeded = this._firstBuild.bind(this);
-			this.openDBRequest.onsuccess = this._afterFirstBuild(data).bind(this);
-		} else {
-			this.openDBRequest.onsuccess = this._rebuild.bind(this);
-		}
-		this.openDBRequest.onerror = this._loadError.bind(this);
-
-		this.getEntry = this.getEntry.bind(this);
-		this.getAll = this.getAll.bind(this);
-		this.put = this.put.bind(this);
-
+	create: function createDB(dbName, key = 'id') {
 		return new Promise((resolve, reject) => {
-			this.initResolve = resolve;
-			this.initReject = reject;
+			this.openDBRequest = window.indexedDB.open(dbName, 1);
+			this.storeName = `${dbName}_store`;
+
+			const _firstBuild = () => {
+				this.db = this.openDBRequest.result;
+				this.objectStore = this.db.createObjectStore(this.storeName, { keyPath: key });
+			};
+
+			const _successBuild = () => {
+				resolve(this);
+			};
+
+			const _errorBuild = (e) => {
+				reject(new Error(e));
+			};
+
+			this.openDBRequest.onupgradeneeded = _firstBuild.bind(this);
+			this.openDBRequest.onsuccess = _successBuild.bind(this);
+			this.openDBRequest.onerror = _errorBuild.bind(this);
+		});
+	},
+
+	use: function useDB(dbName) {
+		return new Promise((resolve, reject) => {
+			this.openDBRequest = window.indexedDB.open(dbName, 1);
+
+			const _query = (method, readOnly = true, param = null) => {
+				const permission = readOnly ? 'readonly' : 'readwrite';
+				if (this.db.objectStoreNames.contains(this.storeName)) {
+					const transaction = this.db.transaction(this.storeName, permission);
+					const store = transaction.objectStore(this.storeName);
+					const request = store[method](param);
+					return new Promise((resolve, reject) => {
+						request.onsuccess = (event) => {
+							resolve(event.target.result);
+						};
+						request.onerror = (event) => {
+							reject(event);
+						};
+					});
+				}
+				return Promise.reject(new Error('Store not found'));
+			};
+
+			const methods = {
+				getEntry: key => _query('get', true, key),
+				getAll: () => _query('getAll', true),
+				put: entryData => _query('put', false, entryData),
+				delete: key => _query('delete', false, key)
+			};
+
+			const _successBuild = () => {
+				this.db = this.openDBRequest.result;
+				resolve(methods);
+			};
+
+			const _errorBuild = (e) => {
+				reject(new Error(e));
+			};
+
+			this.openDBRequest.onsuccess = _successBuild.bind(this);
+			this.openDBRequest.onerror = _errorBuild.bind(this);
+
 		});
 	}
 
-	_firstBuild() {
-		this.db = this.openDBRequest.result;
+};
 
-		// has to check this for uniqueness
-		this.objectStore = this.db.createObjectStore(this.storeName, { keyPath: this.primaryKey });
-		// this.objectStore.createIndex('date', 'date', { unique: true });
-	}
-
-	_afterFirstBuild(data = null) {
-		return () => {
-			this.db = this.openDBRequest.result;
-			const transaction = this.db.transaction(this.storeName, 'readwrite');
-			const store = transaction.objectStore(this.storeName);
-
-			transaction.oncomplete = () => {
-				this.initResolve(this);
-			};
-			transaction.onerror = () => {
-				this.initResolve(this);
-			};
-			data.forEach((entry) => {
-				store.add(entry);
-			});
-		};
-	}
-
-	_rebuild() {
-		this.db = this.openDBRequest.result;
-		this.initResolve(this);
-	}
-
-	_loadError(event) {
-		this.initReject(event.target.message);
-	}
-
-	_query(method, param = null) {
-		const permission = method.substr(0, 3) !== 'get' ? 'readwrite' : 'readonly';
-		if (this.db.objectStoreNames.contains(this.storeName)) {
-			const transaction = this.db.transaction(this.storeName, permission);
-			const store = transaction.objectStore(this.storeName);
-			const request = store[method](param);
-			return new Promise((resolve, reject) => {
-				request.onsuccess = (event) => {
-					resolve(event.target.result);
-				};
-				request.onerror = (event) => {
-					reject(event);
-				};
-			});
-		}
-		return Promise.reject(new Error('Store not found'));
-	}
-
-	getEntry(key) {
-		return this._query('get', key);
-	}
-
-	getAll() {
-		return this._query('getAll');
-	}
-
-	put(data) {
-		return this._query('put', data);
-	}
-
-	delete(key) {
-		return this._query('delete', key);
-	}
-
-}
+export default DB;

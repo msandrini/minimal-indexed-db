@@ -12,10 +12,10 @@ Library to handle the simplest possible application of native IndexedDB (a basic
 This lib is based on an instantiable class. This class is meant to be instantiated in the first use together with the initial data to populate the database and the key, as in the example below:
 
 ```javascript
-const db = new DB({ 
+const db = DB.init({ 
     dbName: 'sample', 
-    key: 'id', 
-    data: [
+    key: 'id', // key is optional, defaults to "id"
+    initialData: [ // initial data is also optional, defaults to an empty array
         { id: 1, name: 'John' }, 
         { id: 2, name: 'Terry' }
     ]});
@@ -26,7 +26,7 @@ This code above returns a promise that resolves (with the instantiated class pro
 You can also use parameters:
 
 ```javascript
-const db = new DB('sample', 'id', [ /* data, can be omitted to be empty */ ]);
+const db = DB.init('sample', 'id', [ /* initial data, can be omitted to be empty */ ]);
 ```
 
 After that, you can use the instantiated class or you can instantiate again the class *without the key and data* to query and modify the database. Look at the examples below:
