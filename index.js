@@ -32,19 +32,23 @@ const DB = {
 			const transaction = this.db.transaction(this.storeName, permission);
 			const store = transaction.objectStore(this.storeName);
 			const isMultiplePut = method === 'put' && param && typeof param.length !== 'undefined';
+			let listener;
 			if (isMultiplePut) {
-				// const allPromises = [];
+				listener = transaction;
 				param.forEach((entry) => {
 					store.put(entry);
 				});
 			} else {
-				store[method](param);
+				listener = store[method](param);
 			}
 			return new Promise((resolve, reject) => {
-				transaction.onsuccess = (event) => {
+				listener.oncomplete = (event) => {
 					resolve(event.target.result);
 				};
-				transaction.onerror = (event) => {
+				listener.onsuccess = (event) => {
+					resolve(event.target.result);
+				};
+				listener.onerror = (event) => {
 					reject(event);
 				};
 			});
@@ -57,7 +61,7 @@ const DB = {
 			getEntry: key => this._query('get', true, key),
 			getAll: () => this._query('getAll', true),
 			put: entryData => this._query('put', false, entryData),
-			delete: key => this._query('delete', false, key)
+			deleteEntry: key => this._query('delete', false, key)
 		};
 	},
 
@@ -67,6 +71,7 @@ const DB = {
 
 			const _successBuild = () => {
 				this.db = this.openDBRequest.result;
+				this.storeName = `${dbName}_store`;
 				resolve(this._getMethods);
 			};
 
@@ -78,6 +83,10 @@ const DB = {
 			this.openDBRequest.onerror = _errorBuild.bind(this);
 
 		});
+	},
+
+	delete: function deleteDB() {
+		this.db.deleteObjectStore(this.storeName);
 	}
 
 };

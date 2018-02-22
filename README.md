@@ -34,12 +34,19 @@ DB.use('sample').then((db) => {
 });
 ```
 
+After the use you can optionally delete the database, which may be relevant for cleaning user info, for example. To do it, just use the `delete` method (this method has no return and is synchronous):
+
+```javascript
+// with db as a database created:
+DB.delete('sample');
+```
+
 ### Handling methods
 
 - `<instance>.getEntry(key)`: gets the entry by the primary key provided (or undefined if nothing was found)
 - `<instance>.getAll()`: gets an array with all entries
 - `<instance>.put()`: inserts an entry or updates it, if the key provided in the entry object already exists. An array can be provided to insert many entries at once.
-- `<instance>.delete(key)`: deletes the entry with the primary key provided
+- `<instance>.deleteEntry(key)`: deletes the entry with the primary key provided
 
 All those methods above return a promise that resolves when the process is done (with the result of the query, when it is a query) and rejects in case of any error. Follow the examples above:
 
@@ -50,7 +57,7 @@ await db.put([
     { id: 3, name: 'Brian' }
 ]);
 await db.getEntry(3); // returns { id: 3, name: 'Brian' }
-await db.delete(3); // delete the record for the key provided
+await db.deleteEntry(3); // delete the record for the key provided
 await db.getEntry(3); // returns undefined
 ```
 
