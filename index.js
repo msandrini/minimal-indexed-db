@@ -26,6 +26,10 @@ const DB = {
 		});
 	},
 
+	check: function checkDB() {
+		return Boolean(this.db && this.db.objectStoreNames.include(this.storeName));
+	},
+
 	_query: function _queryDB(method, readOnly = true, param = null) {
 		const permission = readOnly ? 'readonly' : 'readwrite';
 		if (this.db.objectStoreNames.contains(this.storeName)) {
