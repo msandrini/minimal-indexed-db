@@ -1,6 +1,6 @@
 {
   "name": "minimal-indexed-db",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Minimal wrapper over native IndexedDB",
   "main": "index.js",
   "precommit": [
