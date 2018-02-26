@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MinimalIndexedDB should resolve when successful (with all handling methods) 1`] = `
+Object {
+  "deleteEntry": [Function],
+  "flush": [Function],
+  "getAll": [Function],
+  "getEntry": [Function],
+  "put": [Function],
+}
+`;
