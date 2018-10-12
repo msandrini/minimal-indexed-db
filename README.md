@@ -45,14 +45,14 @@ DB.use('sample').then((db) => {
 All those methods above return a promise that resolves when the process is done (with the result of the query, when it is a query) and rejects in case of any error. Follow the examples above:
 
 ```javascript
-await db = DB('sample');
+const db = await DB('sample');
 await db.put([
     { id: 1, name: 'John' },
     { id: 3, name: 'Brian' }
 ]);
-await db.getEntry(3); // returns { id: 3, name: 'Brian' }
+const oldEntry = await db.getEntry(3); // "oldEntry" returns { id: 3, name: 'Brian' }
 await db.deleteEntry(3); // delete the record for the key provided
-await db.getEntry(3); // returns undefined
+const newEntry = await db.getEntry(3); // "newEntry" returns undefined
 ```
 
 Note that a compatibility lib like `babel` is needed to use `await` as in the examples above.
