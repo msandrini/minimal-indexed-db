@@ -19,7 +19,8 @@ describe('MinimalIndexedDB', () => {
 		getAll: jest.fn(() => listener),
 		put: jest.fn(() => listener),
 		delete: jest.fn(() => listener),
-		clear: jest.fn(() => listener)
+		clear: jest.fn(() => listener),
+		count: jest.fn(() => listener)
 	};
 
 	const transaction = {
@@ -132,6 +133,14 @@ describe('MinimalIndexedDB', () => {
 				expect(store.put).toHaveBeenCalledTimes(2);
 			});
 		});
+		it('add (alias for put)', (done) => {
+			testHandlingMethods(done, (methods) => {
+				methods.add({ id: 2, name: 'John' });
+				expect(openObj.result.transaction)
+					.toHaveBeenCalledWith('sample_store', 'readwrite');
+				expect(store.put).toHaveBeenCalledWith({ id: 2, name: 'John' });
+			});
+		});
 		it('deleteEntry', (done) => {
 			testHandlingMethods(done, (methods) => {
 				methods.deleteEntry(2);
@@ -140,12 +149,28 @@ describe('MinimalIndexedDB', () => {
 				expect(store.delete).toHaveBeenCalledWith(2);
 			});
 		});
-		it('flush', (done) => {
+		it('deleteAll', (done) => {
 			testHandlingMethods(done, (methods) => {
-				methods.flush(1);
+				methods.deleteAll();
 				expect(openObj.result.transaction)
 					.toHaveBeenCalledWith('sample_store', 'readwrite');
 				expect(store.clear).toHaveBeenCalledWith(null);
+			});
+		});
+		it('flush (alias for deleteAll)', (done) => {
+			testHandlingMethods(done, (methods) => {
+				methods.flush();
+				expect(openObj.result.transaction)
+					.toHaveBeenCalledWith('sample_store', 'readwrite');
+				expect(store.clear).toHaveBeenCalledWith(null);
+			});
+		});
+		it('count', (done) => {
+			testHandlingMethods(done, (methods) => {
+				methods.count();
+				expect(openObj.result.transaction)
+					.toHaveBeenCalledWith('sample_store', 'readonly');
+				expect(store.count).toHaveBeenCalledWith(null);
 			});
 		});
 

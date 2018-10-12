@@ -2,6 +2,9 @@
 
 exports[`MinimalIndexedDB should resolve when successful (with all handling methods) 1`] = `
 Object {
+  "add": [Function],
+  "count": [Function],
+  "deleteAll": [Function],
   "deleteEntry": [Function],
   "flush": [Function],
   "getAll": [Function],

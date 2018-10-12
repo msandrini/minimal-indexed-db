@@ -47,8 +47,11 @@ const DB = function DB(dbName, key = 'id') {
 			getEntry: keyToUse => _query('get', true, keyToUse),
 			getAll: () => _query('getAll', true),
 			put: entryData => _query('put', false, entryData),
+			add: entryData => _query('put', false, entryData),
 			deleteEntry: keyToUse => _query('delete', false, keyToUse),
-			flush: () => _query('clear', false)
+			deleteAll: () => _query('clear', false),
+			flush: () => _query('clear', false),
+			count: () => _query('count', true)
 		};
 
 		const _successOnBuild = () => {
