@@ -1,4 +1,4 @@
-import DB from './index';
+const DB = require('./index');
 
 /* globals jest, describe, it, expect, window */
 

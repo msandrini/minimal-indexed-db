@@ -47,7 +47,8 @@
   "homepage": "https://github.com/msandrini/minimalIndexedDB#readme",
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
+    "babel-plugin-dynamic-import-node": "^2.2.0",
+    "babel-preset-env": "^1.7.0",
     "eslint": "^4.16.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
