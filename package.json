@@ -1,5 +1,4 @@
 {
-  "type":"module",
   "name": "minimal-indexed-db",
   "version": "1.2.0",
   "description": "Minimal wrapper over native IndexedDB",

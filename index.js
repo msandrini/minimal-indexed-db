@@ -98,4 +98,4 @@ const DB = function DB(dbName, key = 'id') {
 
 
 
-export default DB;
+module.exports=DB
